@@ -2,6 +2,13 @@ import gym
 import tensorflow as tf
 import numpy as np
 
+def get_max(arr):
+	max_i = 0
+	for i in range(1, len(arr)):
+		if arr[i] > arr[max_i]:
+			max_i = i
+	return max_i
+
 def train(env):
 	layers = []
 	layers.append(tf.keras.layers.Dense(4))
@@ -23,12 +30,10 @@ def train(env):
 			env.render()
 
 			observation = env.observation_space
-			q_values = model.predict(observation)
-			max_q_value = numpy.amax(q_value)
-			max_q_value_id = numpy.where(q_value == max_q_value)
-
-			action = env.action_space[max_q_value_id]
-			_, reward, done, _ = env.step(action)
+			q_values = model.predict(observation.high)[0]
+			max_q_value_id = get_max(q_values)
+			max_q_value = q_values[max_q_value_id]
+			_, reward, done, _ = env.step(max_q_value_id)
 
 			learning_rate = 0.5 # TODO Tune
 			discount_factor = 0.9 # TODO Tune
@@ -37,7 +42,7 @@ def train(env):
 
 			new_q_values = q_values
 			new_q_values[max_q_value_id] = new_q_value
-			model.fit(observation, new_q_values, epochs=epochs_count)
+			model.fit(np.transpose([observation.high]), np.transpose([new_q_values]), epochs=epochs_count)
 
 			if done:
 				print('Episode', e, 'fails after', t, 'timesteps')
