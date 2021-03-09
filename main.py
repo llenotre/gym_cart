@@ -29,17 +29,21 @@ def train(env):
 		while True:
 			in_data = np.array([observation])
 			q_values = model.predict(in_data)[0]
+			print('in: ' + str(in_data))
+			print('out: ' + str(q_values))
 			max_q_value_id = get_max(q_values)
 			max_q_value = q_values[max_q_value_id]
 
 			env.render()
 			next_observation, reward, done, _ = env.step(max_q_value_id)
 			if done:
-				reward = -1000
+				reward = -100
+			else:
+				reward -= abs(next_observation[2])
 			print('reward: ' + str(reward))
 
 			learning_rate = 0.5 # TODO Tune
-			discount_factor = 0.9 # TODO Tune
+			discount_factor = 0.5 # TODO Tune
 			epochs_count = 10 # TODO Tune
 			print('old Q-Values: ' + str(q_values))
 			new_q_value = (1. - learning_rate) * max_q_value + learning_rate * (reward + discount_factor * max_q_value) # TODO fix
@@ -49,12 +53,15 @@ def train(env):
 			print('new Q-Values: ' + str(new_q_values))
 			x = np.array([observation])
 			y = np.array([new_q_values])
+			print('x: ' + str(x))
+			print('y: ' + str(y))
 			model.fit(x, y, epochs=epochs_count)
 
 			if done:
-				print('Episode' + str(e) + 'fails after' + str(t) + 'timesteps')
+				print('Episode ' + str(e) + ' fails after ' + str(t) + ' timesteps')
 				break;
 
+			prev_observation = observation
 			observation = next_observation
 			t += 1;
 		e += 1
