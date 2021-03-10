@@ -57,10 +57,6 @@ class GymModel:
 				if rendering:
 					self.env.render()
 				next_observation, reward, done, _ = self.env.step(action_id)
-				if done:
-					reward = -100.
-				elif abs(next_observation[2]) > observation[2]:
-					reward = -1.
 				print('reward: ' + str(reward))
 				total_reward += reward
 
@@ -70,7 +66,7 @@ class GymModel:
 				print('Next Q-Values: ' + str(q_values))
 				action_next_q_value = next_q_values[get_max(next_q_values)]
 
-				learning_rate = 0.8 # TODO Tune
+				learning_rate = 0.2 # TODO Tune
 				discount_factor = 0.5 # TODO Tune
 				epochs_count = 10 # TODO Tune
 				new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * action_next_q_value)
