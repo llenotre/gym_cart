@@ -41,48 +41,44 @@ class GymModel:
 
 			t = 0
 			while True:
-				in_data = np.array([observation])
-				print('State: ' + str(in_data))
-				q_values = model.predict(in_data)[0]
+				print('State: ' + str(np.array([observation])))
+				q_values = model.predict(np.array([observation]))[0]
 				print('Q-Values: ' + str(q_values))
 
-				random_rate = 0.3 # TODO Tune
-				if random.uniform(0., 1.) < random_rate:
-					action_id = self.env.action_space.sample()
-				else:
-					action_id = get_max(q_values)
-
+				action_id = get_max(q_values)
 				action_q_value = q_values[action_id]
 
-				if rendering:
-					self.env.render()
 				next_observation, reward, done, _ = self.env.step(action_id)
+				if done:
+					reward = -1000.
 				print('reward: ' + str(reward))
 				total_reward += reward
 
-				in_data = np.array([observation])
-				print('Next state: ' + str(in_data))
-				next_q_values = model.predict(in_data)[0]
+				print('Next state: ' + str(np.array([observation])))
+				next_q_values = model.predict(np.array([observation]))[0]
 				print('Next Q-Values: ' + str(q_values))
-				action_next_q_value = next_q_values[get_max(next_q_values)]
+				next_action_id = get_max(next_q_values)
+				next_action_q_value = next_q_values[next_action_id]
 
 				learning_rate = 0.2 # TODO Tune
 				discount_factor = 0.5 # TODO Tune
 				epochs_count = 10 # TODO Tune
-				new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * action_next_q_value)
+				new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
 
 				new_q_values = q_values
 				new_q_values[action_id] = new_q_value
 				print('New Q-Values: ' + str(new_q_values))
-				x = np.array([observation])
-				y = np.array([new_q_values])
-				model.fit(x, y, epochs=epochs_count)
+				model.fit(np.array([observation]),
+					np.array([new_q_values]),
+					epochs=epochs_count)
+
+				if rendering:
+					self.env.render()
 
 				if done:
 					print('Episode ' + str(e) + ' fails after ' + str(t) + ' timesteps')
 					break;
 
-				prev_observation = observation
 				observation = next_observation
 				t += 1;
 
