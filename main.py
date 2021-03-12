@@ -1,8 +1,24 @@
 import gym
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import random
+import sys
 import tensorflow as tf
+
+MODEL_LOCATION = 'model'
+
+def init_model():
+	activation = tf.keras.layers.LeakyReLU()
+	layers = []
+	layers.append(tf.keras.layers.Dense(4, activation=activation))
+	for i in range(10):
+		layers.append(tf.keras.layers.Dense(10, activation=activation))
+	layers.append(tf.keras.layers.Dense(2, activation=activation))
+
+	model = tf.keras.Sequential(layers)
+	model.compile(optimizer='adam', loss='mse')
+	return model
 
 def get_max(arr):
 	max_i = 0
@@ -18,15 +34,30 @@ class GymModel:
 	def __fini__(self):
 		self.env.close()
 
-	def train(self, max_episodes, rendering=False):
-		layers = []
-		layers.append(tf.keras.layers.Dense(4, activation='relu'))
-		for i in range(20):
-			layers.append(tf.keras.layers.Dense(20, activation='relu'))
-		layers.append(tf.keras.layers.Dense(2, activation='relu'))
+	def play(self):
+		model = tf.keras.models.load_model(MODEL_LOCATION)
 
-		model = tf.keras.Sequential(layers)
-		model.compile(optimizer='adam', loss='mse')
+		while True:
+			t = 0
+			self.env.reset()
+			observation, _, _, _ = self.env.step(self.env.action_space.sample())
+			while True:
+				q_values = model.predict(np.array([observation]))[0]
+				action_id = get_max(q_values)
+
+				observation, _, done, _ = self.env.step(action_id)
+				self.env.render()
+				if done:
+					break
+				t += 1
+
+			print('Simulation ended after ' + str(t) + ' timesteps')
+
+	def train(self, max_episodes, rendering=False):
+		if os.path.exists(MODEL_LOCATION):
+			model = tf.keras.models.load_model(MODEL_LOCATION)
+		else:
+			model = init_model()
 
 		total_rewards = []
 		timesteps_count = []
@@ -45,12 +76,19 @@ class GymModel:
 				q_values = model.predict(np.array([observation]))[0]
 				print('Q-Values: ' + str(q_values))
 
-				action_id = get_max(q_values)
+				random_ratio = 0.1 # Tune
+				if random.uniform(0., 1.) < random_ratio:
+					action_id = self.env.action_space.sample()
+				else:
+					action_id = get_max(q_values)
 				action_q_value = q_values[action_id]
 
 				next_observation, reward, done, _ = self.env.step(action_id)
 				if done:
-					reward = -1000.
+					reward = -100.
+				else:
+					reward -= abs(0. - observation[0]) * 10.
+					reward -= abs(next_observation[2] - observation[2]) * 10.
 				print('reward: ' + str(reward))
 				total_reward += reward
 
@@ -60,7 +98,7 @@ class GymModel:
 				next_action_id = get_max(next_q_values)
 				next_action_q_value = next_q_values[next_action_id]
 
-				learning_rate = 0.2 # TODO Tune
+				learning_rate = 0.5 # TODO Tune
 				discount_factor = 0.5 # TODO Tune
 				epochs_count = 10 # TODO Tune
 				new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
@@ -84,6 +122,7 @@ class GymModel:
 
 			total_rewards.append(total_reward)
 			timesteps_count.append(t)
+			model.save(MODEL_LOCATION)
 
 		self.env.close()
 
@@ -95,6 +134,11 @@ class GymModel:
 
 def main():
 	model = GymModel()
-	model.train(100, rendering=True)
+	if len(sys.argv) > 1 and sys.argv[1] == '--train':
+		print('Starting training...')
+		model.train(300, rendering=True)
+	else:
+		print('Starting simulation from training data...')
+		model.play()
 
 main()
