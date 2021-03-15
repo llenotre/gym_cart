@@ -60,6 +60,7 @@ class GymModel:
 
         total_rewards = []
         timesteps_count = []
+        data = []
 
         for e in range(max_episodes):
             self.env.reset()
@@ -83,30 +84,14 @@ class GymModel:
                 action_q_value = q_values[action_id]
 
                 next_observation, reward, done, _ = self.env.step(action_id)
-                #if done:
-                #    reward -= 100.
-                reward -= abs(observation[0]) * 10.
-                reward -= (abs(observation[2]) / 0.20) * 100.
+                reward *= 10.
+                reward -= (abs(observation[0]) / 0.24 - 0.5) * 10.
+                reward -= (abs(observation[2]) / 0.20 - 0.5) * 20.
+                if done:
+                    reward -= 100.
                 print('reward: ' + str(reward))
                 total_reward += reward
-
-                print('Next state: ' + str(np.array([observation])))
-                next_q_values = model.predict(np.array([observation]))[0]
-                print('Next Q-Values: ' + str(q_values))
-                next_action_id = get_max(next_q_values)
-                next_action_q_value = next_q_values[next_action_id]
-
-                learning_rate = 0.7 # TODO Tune
-                discount_factor = 1.0 # TODO Tune
-                epochs_count = 10 # TODO Tune
-                new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
-
-                new_q_values = q_values
-                new_q_values[action_id] = new_q_value
-                print('New Q-Values: ' + str(new_q_values))
-                model.fit(np.array([observation]),
-                        np.array([new_q_values]),
-                        epochs=epochs_count)
+                data.append((observation, reward, q_values, action_q_value))
 
                 if rendering:
                     self.env.render()
@@ -120,7 +105,35 @@ class GymModel:
 
             total_rewards.append(total_reward)
             timesteps_count.append(t)
-            model.save(MODEL_LOCATION)
+
+            if e % 10 == 0:
+                print('Training...')
+
+                for d in data:
+                    observation = d[0]
+                    reward = d[1]
+                    q_values = d[2]
+                    action_q_value = d[3]
+
+                    print('Next state: ' + str(np.array([observation])))
+                    next_q_values = model.predict(np.array([observation]))[0]
+                    print('Next Q-Values: ' + str(q_values))
+                    next_action_id = get_max(next_q_values)
+                    next_action_q_value = next_q_values[next_action_id]
+
+                    learning_rate = 0.7 # TODO Tune
+                    discount_factor = 1.0 # TODO Tune
+                    epochs_count = 10 # TODO Tune
+                    new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
+                    new_q_values = q_values
+                    new_q_values[action_id] = new_q_value
+                    print('New Q-Values: ' + str(new_q_values))
+                    model.fit(np.array([observation]),
+                            np.array([new_q_values]),
+                            epochs=epochs_count)
+
+                data.clear()
+                model.save(MODEL_LOCATION)
 
         self.env.close()
 
