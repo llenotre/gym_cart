@@ -99,7 +99,8 @@ class GymModel:
                 learning_rate = 0.7 # TODO Tune
                 discount_factor = 1.0 # TODO Tune
                 epochs_count = 10 # TODO Tune
-                new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
+                #new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
+                new_q_value = reward + learning_rate * (next_action_q_value)
 
                 new_q_values = q_values
                 new_q_values[action_id] = new_q_value
