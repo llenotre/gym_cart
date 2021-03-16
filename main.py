@@ -84,11 +84,11 @@ class GymModel:
                 action_q_value = q_values[action_id]
 
                 next_observation, reward, done, _ = self.env.step(action_id)
-                reward *= 10.
-                reward -= (abs(observation[0]) / 0.24 - 0.5) * 10.
-                reward -= (abs(observation[2]) / 0.20 - 0.5) * 20.
+                reward = 100.
+                reward -= (abs(observation[0]) / 0.24) * 30.
+                reward -= (abs(observation[2]) / 0.20) * 70.
                 if done:
-                    reward -= 100.
+                    reward = -100.
                 print('reward: ' + str(reward))
                 total_reward += reward
                 data.append((observation, reward, q_values, action_q_value))
@@ -124,7 +124,8 @@ class GymModel:
                     learning_rate = 0.7 # TODO Tune
                     discount_factor = 1.0 # TODO Tune
                     epochs_count = 10 # TODO Tune
-                    new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
+                    #new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
+                    new_q_value = reward + learning_rate * next_action_q_value
                     new_q_values = q_values
                     new_q_values[action_id] = new_q_value
                     print('New Q-Values: ' + str(new_q_values))
