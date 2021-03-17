@@ -81,7 +81,7 @@ class GymModel:
                 q_values = model.predict(np.array([observation]))[0]
                 #print('Q-Values: ' + str(q_values))
 
-                random_ratio = 0.1 # Tune
+                random_ratio = hyperparameters[1]
                 if random.uniform(0., 1.) < random_ratio:
                     action_id = self.env.action_space.sample()
                 else:
@@ -112,7 +112,7 @@ class GymModel:
             total_rewards.append(total_reward)
             timesteps_count.append(t)
 
-            if e % 10 == 0:
+            if e != 0 and e % 10 == 0:
                 self.replay(model, data, hyperparameters)
                 data.clear()
                 model.save(self.get_model_name(generation))
@@ -138,16 +138,14 @@ class GymModel:
             action_id = d[3]
             action_q_value = d[4]
 
-            #print('Next state: ' + str(np.array([observation])))
             next_q_values = model.predict(np.array([observation]))[0]
-            #print('Next Q-Values: ' + str(q_values))
             next_action_id = get_max(next_q_values)
             next_action_q_value = next_q_values[next_action_id]
 
-            new_q_value = (1. - hyperparameters[1]) * action_q_value + hyperparameters[1] * (reward + hyperparameters[2] * next_action_q_value)
+            new_q_value = (1. - hyperparameters[2]) * action_q_value
+				+ hyperparameters[2] * (reward + hyperparameters[3] * next_action_q_value)
             new_q_values = q_values
             new_q_values[action_id] = new_q_value
-            #print('New Q-Values: ' + str(new_q_values))
             model.fit(np.array([observation]),
                     np.array([new_q_values]),
                     epochs=10,

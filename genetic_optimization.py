@@ -60,7 +60,7 @@ class EntityThread(threading.Thread):
 def train(generations_count, entities_count, mutation_rate):
     entities = []
     for i in range(entities_count):
-        entities.append(GEntity(i, [random.uniform(0., 1.) for _ in range(3)]))
+        entities.append(GEntity(i, [random.uniform(0., 1.) for _ in range(4)]))
 
     for g in range(generations_count):
         print('Training generation ' + str(i) + '...')
