@@ -155,7 +155,7 @@ def train_():
 
                 print('Starting training with learning_rate=' + str(learning_rate) + ', q_learning_rate=' + str(q_learning_rate) + ', discount_factor=' + str(discount_factor))
                 model = GymModel()
-                model.train(1000, train_id, learning_rate, q_learning_rate, discount_factor, rendering=False)
+                model.train(train_id, 100, learning_rate, q_learning_rate, discount_factor, rendering=False)
                 train_id += 1
 
 def main():
