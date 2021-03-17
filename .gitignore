@@ -2,3 +2,4 @@ model*/
 plot*.png
 
 *.swp
+__pycache__/
