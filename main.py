@@ -187,9 +187,9 @@ def genetic_training(generations_count, entities_count, mutation_rate):
         for i in range(entities_count):
             entities[i].eval(g) # TODO Multithread?
 
-        sorted(entities, entity_sort)
+        sorted(entities, cmp=entity_sort)
         entities[0:entities_count / 2] = entities_count[entities_count / 2:entities_count]
-        sorted(entities, entity_sort)
+        sorted(entities, cmp=entity_sort)
 
         for i in range(entities_count):
             if random.uniform(0., 1.) < mutation_rate:
@@ -198,7 +198,7 @@ def genetic_training(generations_count, entities_count, mutation_rate):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == '--train':
-        genetic_training(1000, 30, 0.1)
+        genetic_training(1000, 1, 0.1)
     else:
         print('Starting simulation from training data...')
         model = GymModel()
