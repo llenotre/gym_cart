@@ -1,1 +1,4 @@
-model/
+model*/
+plot*.png
+
+*.swp

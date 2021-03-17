@@ -6,9 +6,7 @@ import random
 import sys
 import tensorflow as tf
 
-MODEL_LOCATION = 'model'
-
-def init_model():
+def init_model(learning_rate):
     activation = tf.keras.layers.LeakyReLU()
     layers = []
     for i in range(5):
@@ -16,7 +14,7 @@ def init_model():
     layers.append(tf.keras.layers.Dense(2, activation=activation))
 
     model = tf.keras.Sequential(layers)
-    model.compile(optimizer='adam', loss='mse')
+    model.compile(tf.keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
     return model
 
 def get_max(arr):
@@ -34,7 +32,7 @@ class GymModel:
         self.env.close()
 
     def play(self):
-        model = tf.keras.models.load_model(MODEL_LOCATION)
+        model = tf.keras.models.load_model('model')
 
         while True:
             t = 0
@@ -52,11 +50,12 @@ class GymModel:
 
             print('Simulation ended after ' + str(t) + ' timesteps')
 
-    def train(self, max_episodes, rendering=False):
-        if os.path.exists(MODEL_LOCATION):
-            model = tf.keras.models.load_model(MODEL_LOCATION)
+    def train(self, train_id, max_episodes, learning_rate, q_learning_rate, discount_factor, rendering=False):
+        model_location = 'model' + str(train_id)
+        if os.path.exists(model_location):
+            model = tf.keras.models.load_model(model_location)
         else:
-            model = init_model()
+            model = init_model(learning_rate)
 
         total_rewards = []
         timesteps_count = []
@@ -91,7 +90,7 @@ class GymModel:
                     reward = -100.
                 print('reward: ' + str(reward))
                 total_reward += reward
-                data.append((observation, reward, q_values, action_q_value))
+                data.append((observation, reward, q_values, action_id, action_q_value))
 
                 if rendering:
                     self.env.render()
@@ -107,34 +106,9 @@ class GymModel:
             timesteps_count.append(t)
 
             if e % 10 == 0:
-                print('Training...')
-
-                for d in data:
-                    observation = d[0]
-                    reward = d[1]
-                    q_values = d[2]
-                    action_q_value = d[3]
-
-                    print('Next state: ' + str(np.array([observation])))
-                    next_q_values = model.predict(np.array([observation]))[0]
-                    print('Next Q-Values: ' + str(q_values))
-                    next_action_id = get_max(next_q_values)
-                    next_action_q_value = next_q_values[next_action_id]
-
-                    learning_rate = 0.7 # TODO Tune
-                    discount_factor = 1.0 # TODO Tune
-                    epochs_count = 10 # TODO Tune
-                    #new_q_value = (1. - learning_rate) * action_q_value + learning_rate * (reward + discount_factor * next_action_q_value)
-                    new_q_value = reward + learning_rate * next_action_q_value
-                    new_q_values = q_values
-                    new_q_values[action_id] = new_q_value
-                    print('New Q-Values: ' + str(new_q_values))
-                    model.fit(np.array([observation]),
-                            np.array([new_q_values]),
-                            epochs=epochs_count)
-
+                self.replay(model, data, q_learning_rate, discount_factor)
                 data.clear()
-                model.save(MODEL_LOCATION)
+                model.save(model_location)
 
         self.env.close()
 
@@ -142,15 +116,54 @@ class GymModel:
         plt.ylabel('Total reward/Timesteps count')
         plt.plot(total_rewards)
         plt.plot(timesteps_count)
-        plt.show()
+        plt.savefig('plot' + str(train_id) + '.png')
+        #plt.show()
+
+    def replay(self, model, data, q_learning_rate, discount_factor):
+        print('Training...')
+
+        for d in data:
+            observation = d[0]
+            reward = d[1]
+            q_values = d[2]
+            action_id = d[3]
+            action_q_value = d[4]
+
+            print('Next state: ' + str(np.array([observation])))
+            next_q_values = model.predict(np.array([observation]))[0]
+            print('Next Q-Values: ' + str(q_values))
+            next_action_id = get_max(next_q_values)
+            next_action_q_value = next_q_values[next_action_id]
+
+            new_q_value = (1. - q_learning_rate) * action_q_value + q_learning_rate * (reward + discount_factor * next_action_q_value)
+            new_q_values = q_values
+            new_q_values[action_id] = new_q_value
+            print('New Q-Values: ' + str(new_q_values))
+            model.fit(np.array([observation]),
+                    np.array([new_q_values]),
+                    epochs=10)
+
+def train_():
+    train_id=0
+
+    for i in range(1, 6):
+        for j in range(1, 10):
+            for k in range(1, 10):
+                learning_rate=10e-6 * i
+                q_learning_rate=0.1 * j
+                discount_factor=0.1 * k
+
+                print('Starting training with learning_rate=' + str(learning_rate) + ', q_learning_rate=' + str(q_learning_rate) + ', discount_factor=' + str(discount_factor))
+                model = GymModel()
+                model.train(1000, train_id, learning_rate, q_learning_rate, discount_factor, rendering=False)
+                train_id += 1
 
 def main():
-    model = GymModel()
     if len(sys.argv) > 1 and sys.argv[1] == '--train':
-        print('Starting training...')
-        model.train(100, rendering=True)
+        train_()
     else:
         print('Starting simulation from training data...')
+        model = GymModel()
         model.play()
 
 main()
