@@ -117,6 +117,7 @@ class GymModel:
         plt.plot(total_rewards)
         plt.plot(timesteps_count)
         plt.savefig('plot' + str(train_id) + '.png')
+        plt.clf()
         #plt.show()
 
     def replay(self, model, data, q_learning_rate, discount_factor):
