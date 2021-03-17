@@ -4,7 +4,7 @@ import random
 
 class GEntity:
     def __init__(self, entity_id, hyperparameters):
-        self.model = GymModel(entity_id, 100)
+        self.model = GymModel(entity_id, 300)
         self.hyperparameters = hyperparameters
         self.score = 0.
 
