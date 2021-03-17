@@ -55,7 +55,7 @@ class GymModel:
                     break
                 t += 1
 
-            print('Simulation ended after ' + str(t) + ' timesteps')
+            print('[' + str(self.train_id) + '] Simulation ended after ' + str(t) + ' timesteps')
 
     def train(self, generation, hyperparameters, rendering=False):
         if os.path.exists(self.get_model_name(generation)):
@@ -77,9 +77,9 @@ class GymModel:
 
             t = 0
             while True:
-                print('State: ' + str(np.array([observation])))
+                #print('State: ' + str(np.array([observation])))
                 q_values = model.predict(np.array([observation]))[0]
-                print('Q-Values: ' + str(q_values))
+                #print('Q-Values: ' + str(q_values))
 
                 random_ratio = 0.1 # Tune
                 if random.uniform(0., 1.) < random_ratio:
@@ -95,7 +95,7 @@ class GymModel:
                     reward = 100.
                     reward -= (abs(observation[0]) / 0.24) * 30.
                     reward -= (abs(observation[2]) / 0.20) * 70.
-                print('reward: ' + str(reward))
+                #print('reward: ' + str(reward))
                 total_reward += reward
                 data.append((observation, reward, q_values, action_id, action_q_value))
 
@@ -103,7 +103,7 @@ class GymModel:
                     self.env.render()
 
                 if done:
-                    print('Episode ' + str(e) + ' fails after ' + str(t) + ' timesteps')
+                    print('[' + str(self.train_id) + '] Episode ' + str(e) + ' fails after ' + str(t) + ' timesteps')
                     break;
 
                 observation = next_observation
@@ -129,7 +129,7 @@ class GymModel:
         return sum(timesteps_count) # TODO Use linear regression?
 
     def replay(self, model, data, hyperparameters):
-        print('Training...')
+        print('[' + str(self.train_id) + '] Training...')
 
         for d in data:
             observation = d[0]
@@ -138,16 +138,17 @@ class GymModel:
             action_id = d[3]
             action_q_value = d[4]
 
-            print('Next state: ' + str(np.array([observation])))
+            #print('Next state: ' + str(np.array([observation])))
             next_q_values = model.predict(np.array([observation]))[0]
-            print('Next Q-Values: ' + str(q_values))
+            #print('Next Q-Values: ' + str(q_values))
             next_action_id = get_max(next_q_values)
             next_action_q_value = next_q_values[next_action_id]
 
             new_q_value = (1. - hyperparameters[1]) * action_q_value + hyperparameters[1] * (reward + hyperparameters[2] * next_action_q_value)
             new_q_values = q_values
             new_q_values[action_id] = new_q_value
-            print('New Q-Values: ' + str(new_q_values))
+            #print('New Q-Values: ' + str(new_q_values))
             model.fit(np.array([observation]),
                     np.array([new_q_values]),
-                    epochs=10)
+                    epochs=10,
+                    verbose=0)

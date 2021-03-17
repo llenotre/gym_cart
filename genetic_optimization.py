@@ -1,12 +1,17 @@
 from model import GymModel
 import model
 import random
+import threading
 
 class GEntity:
     def __init__(self, entity_id, hyperparameters):
-        self.model = GymModel(entity_id, 300)
+        self.entity_id = entity_id
+        self.model = GymModel(entity_id, 100)
         self.hyperparameters = hyperparameters
         self.score = 0.
+
+    def get_id(self):
+        return self.entity_id
 
     def eval(self, generation_id):
         self.score = self.model.train(generation_id, self.hyperparameters, rendering=False)
@@ -42,14 +47,32 @@ class GEntity:
     def __ge__(self, other):
         return other.get_score() >= self.get_score()
 
+class EntityThread(threading.Thread):
+    def __init__(self, entity, generation):
+        threading.Thread.__init__(self)
+        self.entity = entity
+        self.generation = generation
+
+    def run(self):
+        print('[' + str(self.entity.get_id()) + '] Training entity...')
+        self.entity.eval(self.generation)
+
 def train(generations_count, entities_count, mutation_rate):
     entities = []
     for i in range(entities_count):
         entities.append(GEntity(i, [random.uniform(0., 1.) for _ in range(3)]))
 
     for g in range(generations_count):
+        print('Training generation ' + str(i) + '...')
+
+        threads = []
         for i in range(entities_count):
-            entities[i].eval(g) # TODO Multithread?
+            t = EntityThread(entities[i], g)
+            t.start()
+            threads.append(t)
+
+        for i in range(entities_count):
+            threads[i].join()
 
         sorted(entities)
         entities[0:int(entities_count / 2)] = entities[int(entities_count / 2):entities_count]
