@@ -178,7 +178,7 @@ class GEntity:
 def entity_sort(x, y):
     return y.get_score() - x.get_score()
 
-def genetic_training(generations_count, entities_count):
+def genetic_training(generations_count, entities_count, mutation_rate):
     entities = []
     for i in range(entities_count):
         entities.append(GEntity(i, [random.uniform(0., 1.) for _ in range(3)]))
@@ -188,11 +188,17 @@ def genetic_training(generations_count, entities_count):
             entities[i].eval(g) # TODO Multithread?
 
         sorted(entities, entity_sort)
-        # TODO Crossover and mutate for next generation
+        entities[0:entities_count / 2] = entities_count[entities_count / 2:entities_count]
+        sorted(entities, entity_sort)
+
+        for i in range(entities_count):
+            if random.uniform(0., 1.) < mutation_rate:
+                entities[i].mutate()
+        # TODO Crossover
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == '--train':
-        genetic_training(1000, 30)
+        genetic_training(1000, 30, 0.1)
     else:
         print('Starting simulation from training data...')
         model = GymModel()
