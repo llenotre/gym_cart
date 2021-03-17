@@ -152,3 +152,5 @@ class GymModel:
                     np.array([new_q_values]),
                     epochs=10,
                     verbose=0)
+
+        print('[' + str(self.train_id) + '] Training ended')
