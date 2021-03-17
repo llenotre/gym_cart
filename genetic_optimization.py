@@ -63,7 +63,7 @@ def train(generations_count, entities_count, mutation_rate):
         entities.append(GEntity(i, [random.uniform(0., 1.) for _ in range(4)]))
 
     for g in range(generations_count):
-        print('Training generation ' + str(i) + '...')
+        print('Training generation ' + str(g) + '...')
 
         threads = []
         for i in range(entities_count):

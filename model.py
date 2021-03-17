@@ -23,6 +23,15 @@ def get_max(arr):
             max_i = i
     return max_i
 
+def write_csv(path, data):
+    with open(path, 'a+') as f:
+        for i in range(len(data)):
+            for j in range(len(data[i])):
+                f.write(str(data[i][j]))
+                if j < len(data[i]) - 1:
+                    f.write(',')
+            f.write('\n')
+
 class GymModel:
     def __init__(self, train_id, max_episodes):
         self.env = gym.make('CartPole-v0')
@@ -32,11 +41,17 @@ class GymModel:
     def __fini__(self):
         self.env.close()
 
+    def get_hyperparameters_name(self, generation_id):
+        return 'hyperparameters' + str(generation_id) + '-' + str(self.train_id)
+
     def get_model_name(self, generation_id):
         return 'model' + str(generation_id) + '-' + str(self.train_id)
 
     def get_plot_name(self, generation_id):
         return 'plot' + str(generation_id) + '-' + str(self.train_id) + '.png'
+
+    def get_data_name(self, generation_id):
+        return 'data' + str(generation_id) + '-' + str(self.train_id)
 
     def play(self, generation):
         model = tf.keras.models.load_model(self.get_model_name(generation))
@@ -58,6 +73,8 @@ class GymModel:
             print('[' + str(self.train_id) + '] Simulation ended after ' + str(t) + ' timesteps')
 
     def train(self, generation, hyperparameters, rendering=False):
+        with open(self.get_hyperparameters_name(generation), 'w+') as f:
+            f.write(str(hyperparameters) + '\n')
         if os.path.exists(self.get_model_name(generation)):
             model = tf.keras.models.load_model(self.get_model_name(generation))
         else:
@@ -77,9 +94,7 @@ class GymModel:
 
             t = 0
             while True:
-                #print('State: ' + str(np.array([observation])))
                 q_values = model.predict(np.array([observation]))[0]
-                #print('Q-Values: ' + str(q_values))
 
                 random_ratio = hyperparameters[1]
                 if random.uniform(0., 1.) < random_ratio:
@@ -95,9 +110,8 @@ class GymModel:
                     reward = 100.
                     reward -= (abs(observation[0]) / 0.24) * 30.
                     reward -= (abs(observation[2]) / 0.20) * 70.
-                #print('reward: ' + str(reward))
                 total_reward += reward
-                data.append((observation, reward, q_values, action_id, action_q_value))
+                data.append([observation, reward, q_values, action_id, action_q_value])
 
                 if rendering:
                     self.env.render()
@@ -114,8 +128,9 @@ class GymModel:
 
             if e != 0 and e % 10 == 0:
                 self.replay(model, data, hyperparameters)
-                data.clear()
                 model.save(self.get_model_name(generation))
+                write_csv(self.get_data_name(generation), data)
+                data.clear()
 
         self.env.close()
 
@@ -142,8 +157,7 @@ class GymModel:
             next_action_id = get_max(next_q_values)
             next_action_q_value = next_q_values[next_action_id]
 
-            new_q_value = (1. - hyperparameters[2]) * action_q_value
-				+ hyperparameters[2] * (reward + hyperparameters[3] * next_action_q_value)
+            new_q_value = (1. - hyperparameters[2]) * action_q_value + hyperparameters[2] * (reward + hyperparameters[3] * next_action_q_value)
             new_q_values = q_values
             new_q_values[action_id] = new_q_value
             model.fit(np.array([observation]),
