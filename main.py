@@ -5,7 +5,6 @@ import os
 import random
 import sys
 import tensorflow as tf
-import thread
 
 def init_model(learning_rate):
     activation = tf.keras.layers.LeakyReLU()
@@ -26,24 +25,22 @@ def get_max(arr):
     return max_i
 
 class GymModel:
-    def __init__(self, generation_id, train_id, max_episodes, hyperparameters):
+    def __init__(self, train_id, max_episodes):
         self.env = gym.make('CartPole-v0')
-        self.generation_id = generation_id
         self.train_id = train_id
         self.max_episodes = max_episodes
-        self.hyperparameters = hyperparameters
 
     def __fini__(self):
         self.env.close()
 
-    def get_model_name(self):
-        return 'model' + str(self.generation_id) + '-' + str(self.train_id)
+    def get_model_name(self, generation_id):
+        return 'model' + str(generation_id) + '-' + str(self.train_id)
 
-    def get_plot_name(self):
-        return 'plot' + str(self.generation_id) + '-' + str(self.train_id) + '.png'
+    def get_plot_name(self, generation_id):
+        return 'plot' + str(generation_id) + '-' + str(self.train_id) + '.png'
 
-    def play(self):
-        model = tf.keras.models.load_model(self.get_model_name())
+    def play(self, generation):
+        model = tf.keras.models.load_model(self.get_model_name(generation))
 
         while True:
             t = 0
@@ -61,9 +58,9 @@ class GymModel:
 
             print('Simulation ended after ' + str(t) + ' timesteps')
 
-    def train(self, rendering=False):
-        if os.path.exists(self.get_model_name()):
-            model = tf.keras.models.load_model(self.get_model_name())
+    def train(self, generation, hyperparameters, rendering=False):
+        if os.path.exists(self.get_model_name(generation)):
+            model = tf.keras.models.load_model(self.get_model_name(generation))
         else:
             model = init_model(hyperparameters[0])
 
@@ -71,7 +68,7 @@ class GymModel:
         timesteps_count = []
         data = []
 
-        for e in range(max_episodes):
+        for e in range(self.max_episodes):
             self.env.reset()
             if rendering:
                 self.env.render()
@@ -119,7 +116,7 @@ class GymModel:
             if e % 10 == 0:
                 self.replay(model, data, hyperparameters)
                 data.clear()
-                model.save(self.get_model_name())
+                model.save(self.get_model_name(generation))
 
         self.env.close()
 
@@ -127,7 +124,7 @@ class GymModel:
         plt.ylabel('Total reward/Timesteps count')
         plt.plot(total_rewards)
         plt.plot(timesteps_count)
-        plt.savefig(self.get_plot_name())
+        plt.savefig(self.get_plot_name(generation))
         plt.clf()
 
         return sum(timesteps_count) # TODO Use linear regression?
@@ -157,15 +154,13 @@ class GymModel:
                     epochs=10)
 
 class GEntity:
-    def __init__(generation_id, entity_id, model, hyperparameters):
-        self.generation_id = generation_id
-        self.entity_id = entity_id
-        self.model = model
+    def __init__(self, entity_id, hyperparameters):
+        self.model = GymModel(entity_id, 100)
         self.hyperparameters = hyperparameters
-        self.score = 0
+        self.score = 0.
 
-    def eval(self):
-        self.score = self.model.train(self.generation_id, self.entity_id, 100, self.hyperparameters, rendering=False)
+    def eval(self, generation_id):
+        self.score = self.model.train(generation_id, self.hyperparameters, rendering=False)
 
     def get_score(self):
         return self.score
@@ -180,30 +175,24 @@ class GEntity:
                 new_hyperparameters[i] = other.hyperparameters[i]
         self.hyperparameters = new_hyperparameters
 
-def train_entity(entity):
-    entity.eval()
+def entity_sort(x, y):
+    return y.get_score() - x.get_score()
 
-def entity_sort(x, y)
-    y.get_score() - x.get_score()
-
-def genetic_training(generations_count, individuals_count):
+def genetic_training(generations_count, entities_count):
     entities = []
-    for i in entities_count:
-        entities.append(GEntity(GymModel(), [random.uniform() for _ in range(3)]))
+    for i in range(entities_count):
+        entities.append(GEntity(i, [random.uniform(0., 1.) for _ in range(3)]))
 
     for g in range(generations_count):
-        threads = []
-        for i in entities_count:
-            threads.append(thread.start_new_thread(train_entity, (entities[i])))
-        for i in entities_count:
-            threads[i].join()
+        for i in range(entities_count):
+            entities[i].eval(g) # TODO Multithread?
 
         sorted(entities, entity_sort)
         # TODO Crossover and mutate for next generation
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == '--train':
-        genetic_training()
+        genetic_training(1000, 30)
     else:
         print('Starting simulation from training data...')
         model = GymModel()
