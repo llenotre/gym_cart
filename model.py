@@ -134,12 +134,13 @@ class GymModel:
 
         self.env.close()
 
-        plt.xlabel('Episode')
-        plt.ylabel('Total reward/Timesteps count')
-        plt.plot(total_rewards)
-        plt.plot(timesteps_count)
-        plt.savefig(self.get_plot_name(generation))
-        plt.clf()
+        # TODO Fix: cannot work outside of main thread
+        #plt.xlabel('Episode')
+        #plt.ylabel('Total reward/Timesteps count')
+        #plt.plot(total_rewards)
+        #plt.plot(timesteps_count)
+        #plt.savefig(self.get_plot_name(generation))
+        #plt.clf()
 
         return sum(timesteps_count) # TODO Use linear regression?
 
