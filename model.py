@@ -1,4 +1,5 @@
 import gym
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -31,6 +32,22 @@ def write_csv(path, data):
                 if j < len(data[i]) - 1:
                     f.write(',')
             f.write('\n')
+
+def get_score(data):
+    count = len(data)
+    avg_x = math.floor(count * (count + 1) / 2) / count
+
+    avg_y = 0.
+    for d in data:
+        avg_y += d
+    avg_y /= count
+
+    i = 0.
+    j = 0.
+    for x in range(count):
+        i += (x - avg_x) * (data[x] - avg_y)
+        j += (x - avg_x) * (x - avg_x)
+    return i / j
 
 class GymModel:
     def __init__(self, train_id, max_episodes):
@@ -142,7 +159,7 @@ class GymModel:
         #plt.savefig(self.get_plot_name(generation))
         #plt.clf()
 
-        return sum(timesteps_count) # TODO Use linear regression?
+        return get_score(timesteps_count)
 
     def replay(self, model, data, hyperparameters):
         print('[' + str(self.train_id) + '] Training...')
