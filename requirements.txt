@@ -1,0 +1,122 @@
+absl-py @ file:///tmp/build/80754af9/absl-py_1607439979954/work
+aiohttp @ file:///tmp/build/80754af9/aiohttp_1614360989480/work
+astroid @ file:///tmp/build/80754af9/astroid_1613500851753/work
+astunparse==1.6.3
+async-timeout==3.0.1
+attrs @ file:///tmp/build/80754af9/attrs_1604765588209/work
+blinker==1.4
+brotlipy==0.7.0
+cachetools @ file:///tmp/build/80754af9/cachetools_1611600262290/work
+certifi==2020.12.5
+cffi @ file:///tmp/build/80754af9/cffi_1613246939562/work
+chardet @ file:///tmp/build/80754af9/chardet_1605303159953/work
+click @ file:///home/linux1/recipes/ci/click_1610990599742/work
+cloudpickle @ file:///tmp/build/80754af9/cloudpickle_1598884132938/work
+codecov @ file:///tmp/build/80754af9/codecov_1608229095833/work
+coverage @ file:///tmp/build/80754af9/coverage_1611690810614/work
+cryptography @ file:///tmp/build/80754af9/cryptography_1613401440205/work
+cycler==0.10.0
+Cython @ file:///tmp/build/80754af9/cython_1614014840177/work
+cytoolz==0.11.0
+dask @ file:///tmp/build/80754af9/dask-core_1613253194046/work
+decorator @ file:///home/ktietz/src/ci/decorator_1611930055503/work
+docopt==0.6.2
+-e git+https://github.com/autorope/donkeycar@c8023927021c4fc365a08f6afc1abb68a76e314b#egg=donkeycar
+fsspec @ file:///tmp/build/80754af9/fsspec_1602684995936/work
+future==0.18.2
+gast==0.3.3
+google-auth @ file:///tmp/build/80754af9/google-auth_1613588361630/work
+google-auth-oauthlib @ file:///tmp/build/80754af9/google-auth-oauthlib_1603929124518/work
+google-pasta==0.2.0
+grpcio @ file:///tmp/build/80754af9/grpcio_1613730131325/work
+gym==0.18.0
+-e git+https://github.com/tawnkramer/gym-donkeycar@bf7a05098f183c7bc16bed69be09058074c80a30#egg=gym_donkeycar
+h5py @ file:///tmp/build/80754af9/h5py_1593454119955/work
+idna @ file:///home/linux1/recipes/ci/idna_1610986105248/work
+imageio @ file:///tmp/build/80754af9/imageio_1594161405741/work
+imageio-ffmpeg @ file:///home/conda/feedstock_root/build_artifacts/imageio-ffmpeg_1609799311556/work
+imgaug @ file:///tmp/build/80754af9/imgaug_1605226543559/work
+importlib-metadata @ file:///tmp/build/80754af9/importlib-metadata_1602276842396/work
+iniconfig @ file:///home/linux1/recipes/ci/iniconfig_1610983019677/work
+isort @ file:///tmp/build/80754af9/isort_1612243941122/work
+Keras-Preprocessing @ file:///tmp/build/80754af9/keras-preprocessing_1612283640596/work
+keras-vis @ git+https://github.com/autorope/keras-vis.git@3d9d61728312f278a62cbe6b3f9ae92eb4c51520
+kiwisolver @ file:///tmp/build/80754af9/kiwisolver_1612282414123/work
+lazy-object-proxy @ file:///tmp/build/80754af9/lazy-object-proxy_1606850042850/work
+Markdown @ file:///tmp/build/80754af9/markdown_1614363832606/work
+matplotlib @ file:///tmp/build/80754af9/matplotlib-suite_1613407855456/work
+mccabe==0.6.1
+mkl-fft==1.3.0
+mkl-random==1.1.1
+mkl-service==2.3.0
+more-itertools @ file:///tmp/build/80754af9/more-itertools_1613676688952/work
+moviepy==1.0.1
+multidict @ file:///tmp/build/80754af9/multidict_1607367738239/work
+mypy @ file:///tmp/build/80754af9/mypy_1613763625988/work
+mypy-extensions==0.4.3
+networkx @ file:///tmp/build/80754af9/networkx_1598376031484/work
+numpy @ file:///tmp/build/80754af9/numpy_and_numpy_base_1603479632437/work
+oauthlib==3.1.0
+olefile==0.46
+opencv-python-headless==4.5.1.48
+opt-einsum==3.1.0
+packaging @ file:///tmp/build/80754af9/packaging_1611952188834/work
+paho-mqtt==1.5.0
+pandas==1.2.2
+Pillow==7.2.0
+pluggy==0.13.1
+prettytable @ file:///home/conda/feedstock_root/build_artifacts/prettytable_1605348622459/work
+proglog==0.1.9
+progress @ file:///tmp/build/80754af9/progress_1614270514501/work
+protobuf==3.14.0
+psutil @ file:///tmp/build/80754af9/psutil_1612298016854/work
+py @ file:///tmp/build/80754af9/py_1607971587848/work
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+pyfiglet==0.8.post1
+pyglet==1.5.0
+PyJWT==1.7.1
+pylint @ file:///tmp/build/80754af9/pylint_1614365854461/work
+pyOpenSSL @ file:///tmp/build/80754af9/pyopenssl_1608057966937/work
+pyparsing @ file:///home/linux1/recipes/ci/pyparsing_1610983426697/work
+PyQt5==5.12.3
+PyQt5-sip==4.19.18
+PyQtChart==5.12
+PyQtWebEngine==5.12.1
+PySocks @ file:///tmp/build/80754af9/pysocks_1594394576006/work
+pytest==6.2.2
+pytest-cov @ file:///tmp/build/80754af9/pytest-cov_1611172139459/work
+python-dateutil @ file:///home/ktietz/src/ci/python-dateutil_1611928101742/work
+pytorch-lightning @ file:///home/conda/feedstock_root/build_artifacts/pytorch-lightning_1614192775604/work
+pytz @ file:///tmp/build/80754af9/pytz_1612215392582/work
+PyWavelets @ file:///tmp/build/80754af9/pywavelets_1601658308664/work
+PyYAML==5.4.1
+requests @ file:///tmp/build/80754af9/requests_1608241421344/work
+requests-oauthlib==1.3.0
+rsa @ file:///tmp/build/80754af9/rsa_1614366226499/work
+scikit-image==0.16.2
+scipy @ file:///tmp/build/80754af9/scipy_1614022789548/work
+Shapely @ file:///tmp/build/80754af9/shapely_1599817087478/work
+simple-pid==0.2.4
+six @ file:///tmp/build/80754af9/six_1605205313296/work
+tensorboard @ file:///home/builder/ktietz/conda/conda-bld/tensorboard_1604313476433/work/tmp_pip_dir
+tensorboard-plugin-wit==1.6.0
+tensorflow==2.2.0
+tensorflow-estimator==2.2.0
+termcolor==1.1.0
+toml @ file:///tmp/build/80754af9/toml_1592853716807/work
+toolz @ file:///home/linux1/recipes/ci/toolz_1610987900194/work
+torch @ file:///tmp/build/80754af9/pytorch_1614404297457/work
+torchaudio==0.7.0a0+a853dff
+torchvision==0.2.1
+tornado @ file:///tmp/build/80754af9/tornado_1606942283357/work
+tqdm @ file:///tmp/build/80754af9/tqdm_1611857934208/work
+typed-ast @ file:///tmp/build/80754af9/typed-ast_1610484562261/work
+typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1611751222202/work
+urllib3 @ file:///tmp/build/80754af9/urllib3_1611694770489/work
+wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
+Werkzeug @ file:///home/ktietz/src/ci/werkzeug_1611932622770/work
+wrapt==1.12.1
+yarl @ file:///tmp/build/80754af9/yarl_1606939952652/work
+zipp @ file:///tmp/build/80754af9/zipp_1604001098328/work
